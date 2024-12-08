@@ -1,0 +1,145 @@
+import tkinter as tk
+from tkinter import messagebox
+import sqlite3
+
+# Initialize SQLite database
+def init_db():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL
+    )
+    """)
+    conn.commit()
+    conn.close()
+
+# Register a new user
+def register_user():
+    def save_user():
+        username = reg_username_entry.get()
+        password = reg_password_entry.get()
+
+        if not username or not password:
+            messagebox.showerror("Error", "Username and password cannot be empty!")
+            return
+
+        try:
+            conn = sqlite3.connect("users.db")
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+            conn.commit()
+            conn.close()
+            messagebox.showinfo("Success", "Registration Successful!")
+            reg_window.destroy()
+        except sqlite3.IntegrityError:
+            messagebox.showerror("Error", "Username already exists!")
+
+    # Registration window
+    reg_window = tk.Toplevel(login_window)
+    reg_window.title("Register")
+    reg_window.geometry("400x300")
+
+    tk.Label(reg_window, text="Register New User", font=("Arial", 20)).pack(pady=20)
+
+    tk.Label(reg_window, text="Username:", font=("Arial", 14)).pack(pady=5)
+    reg_username_entry = tk.Entry(reg_window, font=("Arial", 14))
+    reg_username_entry.pack(pady=5)
+
+    tk.Label(reg_window, text="Password:", font=("Arial", 14)).pack(pady=5)
+    reg_password_entry = tk.Entry(reg_window, font=("Arial", 14), show="*")
+    reg_password_entry.pack(pady=5)
+
+    tk.Button(reg_window, text="Register", font=("Arial", 14), command=save_user).pack(pady=20)
+
+# Login function
+def login():
+    username = username_entry.get()
+    password = password_entry.get()
+
+    if not username or not password:
+        messagebox.showerror("Error", "Username and password cannot be empty!")
+        return
+
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+    user = cursor.fetchone()
+    conn.close()
+
+    if user:
+        messagebox.showinfo("Success", "Login Successful!")
+        open_main_window()
+    else:
+        messagebox.showerror("Failure", "Incorrect username or password!")
+
+# Open the main functionality window after successful login
+def open_main_window():
+    login_window.destroy()
+
+    # Create the main window
+    main_window = tk.Tk()
+    main_window.title("Multimedia Management System")
+
+    # Set the main window to full screen
+    main_window.attributes('-fullscreen', True)
+
+    # Add ESC key to exit fullscreen mode
+    def exit_fullscreen(event):
+        main_window.attributes('-fullscreen', False)
+
+    main_window.bind("<Escape>", exit_fullscreen)
+
+    def add_media():
+        messagebox.showinfo("Add Media", "This is the Add Media feature")
+
+    def delete_media():
+        messagebox.showinfo("Delete Media", "This is the Delete Media feature")
+
+    def query_media():
+        messagebox.showinfo("Query Media", "This is the Query Media feature")
+
+    def play_media():
+        messagebox.showinfo("Play Media", "This is the Play Media feature")
+
+    tk.Label(main_window, text="Multimedia Management System", font=("Arial", 30)).pack(pady=20)
+
+    tk.Button(main_window, text="Add Media", font=("Arial", 14), width=20, command=add_media).pack(pady=10)
+    tk.Button(main_window, text="Delete Media", font=("Arial", 14), width=20, command=delete_media).pack(pady=10)
+    tk.Button(main_window, text="Query Media", font=("Arial", 14), width=20, command=query_media).pack(pady=10)
+    tk.Button(main_window, text="Play Media", font=("Arial", 14), width=20, command=play_media).pack(pady=10)
+
+    main_window.mainloop()
+
+# Initialize the database
+init_db()
+
+# Main login window
+login_window = tk.Tk()
+login_window.title("Member Management - Login")
+
+# Set the window to full screen
+login_window.attributes('-fullscreen', True)
+
+# Add ESC key to exit fullscreen mode
+def exit_fullscreen(event):
+    login_window.attributes('-fullscreen', False)
+
+login_window.bind("<Escape>", exit_fullscreen)
+
+tk.Label(login_window, text="Member Management Login", font=("Arial", 30)).pack(pady=40)
+
+tk.Label(login_window, text="Username:", font=("Arial", 20)).pack(pady=10)
+username_entry = tk.Entry(login_window, font=("Arial", 20))
+username_entry.pack(pady=10)
+
+tk.Label(login_window, text="Password:", font=("Arial", 20)).pack(pady=10)
+password_entry = tk.Entry(login_window, font=("Arial", 20), show="*")
+password_entry.pack(pady=10)
+
+tk.Button(login_window, text="Login", font=("Arial", 18), command=login).pack(pady=20)
+tk.Button(login_window, text="Register", font=("Arial", 18), command=register_user).pack(pady=10)
+
+login_window.mainloop()
