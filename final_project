@@ -104,6 +104,11 @@ def open_main_window():
     def play_media():
         messagebox.showinfo("Play Media", "This is the Play Media feature")
 
+    def logout():
+        # Close the main window and return to the login screen
+        main_window.destroy()
+        show_login_screen()
+
     tk.Label(main_window, text="Multimedia Management System", font=("Arial", 30)).pack(pady=20)
 
     tk.Button(main_window, text="Add Media", font=("Arial", 14), width=20, command=add_media).pack(pady=10)
@@ -111,35 +116,48 @@ def open_main_window():
     tk.Button(main_window, text="Query Media", font=("Arial", 14), width=20, command=query_media).pack(pady=10)
     tk.Button(main_window, text="Play Media", font=("Arial", 14), width=20, command=play_media).pack(pady=10)
 
+    # Change the button name to "Return to Login System"
+    tk.Button(main_window, text="Return to Login System", font=("Arial", 14), width=20, command=logout).pack(pady=10)
+
     main_window.mainloop()
+
+# Show login screen
+def show_login_screen():
+    global login_window
+    login_window = tk.Tk()
+    login_window.title("Member Management - Login")
+
+    # Set the window to full screen
+    login_window.attributes('-fullscreen', True)
+
+    # Add ESC key to exit fullscreen mode
+    def exit_fullscreen(event):
+        login_window.attributes('-fullscreen', False)
+
+    login_window.bind("<Escape>", exit_fullscreen)
+
+    tk.Label(login_window, text="Member Management Login", font=("Arial", 30)).pack(pady=40)
+
+    tk.Label(login_window, text="Username:", font=("Arial", 20)).pack(pady=10)
+    global username_entry
+    username_entry = tk.Entry(login_window, font=("Arial", 20))
+    username_entry.pack(pady=10)
+
+    tk.Label(login_window, text="Password:", font=("Arial", 20)).pack(pady=10)
+    global password_entry
+    password_entry = tk.Entry(login_window, font=("Arial", 20), show="*")
+    password_entry.pack(pady=10)
+
+    tk.Button(login_window, text="Login", font=("Arial", 18), command=login).pack(pady=20)
+    tk.Button(login_window, text="Register", font=("Arial", 18), command=register_user).pack(pady=10)
+
+    # Add 'Exit System' button to close the application
+    tk.Button(login_window, text="Exit System", font=("Arial", 18), command=login_window.quit).pack(pady=20)
+
+    login_window.mainloop()
 
 # Initialize the database
 init_db()
 
-# Main login window
-login_window = tk.Tk()
-login_window.title("Member Management - Login")
-
-# Set the window to full screen
-login_window.attributes('-fullscreen', True)
-
-# Add ESC key to exit fullscreen mode
-def exit_fullscreen(event):
-    login_window.attributes('-fullscreen', False)
-
-login_window.bind("<Escape>", exit_fullscreen)
-
-tk.Label(login_window, text="Member Management Login", font=("Arial", 30)).pack(pady=40)
-
-tk.Label(login_window, text="Username:", font=("Arial", 20)).pack(pady=10)
-username_entry = tk.Entry(login_window, font=("Arial", 20))
-username_entry.pack(pady=10)
-
-tk.Label(login_window, text="Password:", font=("Arial", 20)).pack(pady=10)
-password_entry = tk.Entry(login_window, font=("Arial", 20), show="*")
-password_entry.pack(pady=10)
-
-tk.Button(login_window, text="Login", font=("Arial", 18), command=login).pack(pady=20)
-tk.Button(login_window, text="Register", font=("Arial", 18), command=register_user).pack(pady=10)
-
-login_window.mainloop()
+# Start by showing the login screen
+show_login_screen()
